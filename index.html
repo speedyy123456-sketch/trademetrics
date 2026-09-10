@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TradeMetrics | Analizador de trades</title>
+  <link rel="icon" type="image/x-icon" href="logo dorado icono.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div class="brand-lockup">
+        <div class="brand-logo-wrap"><img class="brand-logo" src="logo sin fondo dorado.png" alt="Logo de TradeMetrics" /></div>
+        <div>
+          <p class="eyebrow">TRADEMETRICS</p>
+          <h1>Trade<span>Metrics</span></h1>
+          <p class="intro">Selecciona el exchange, carga tu historial de posiciones cerradas y convierte los datos en decisiones más claras.</p>
+        </div>
+      </div>
+      <label id="topUploadButton" class="upload-button disabled-upload">
+        <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" />
+        <span>Seleccionar Excel</span>
+      </label>
+    </header>
+
+    <section id="emptyState" class="empty-state">
+      <div class="drop-icon">↥</div>
+      <h2>Selecciona tu exchange</h2>
+      <p id="exchangeHelp">Primero selecciona el exchange del archivo que quieres analizar.</p>
+      <div class="exchange-picker"><button type="button" class="exchange-button" data-exchange="binance"><img src="https://cdn.simpleicons.org/binance" alt="Logo de Binance" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="exchange-fallback binance-fallback" hidden>B</span><span>Binance</span></button><button type="button" class="exchange-button" data-exchange="mexc"><img src="https://mexc-rainbown-activityimages.s3.ap-northeast-1.amazonaws.com/banner/F20260907162558166GC1eEzPnH1qN0V.png" alt="Logo oficial de MEXC" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="exchange-fallback mexc-fallback" hidden>M</span><span>MEXC</span></button><button type="button" class="exchange-button" data-exchange="bingx"><img src="https://bingx.com/favicon.ico" alt="Logo de BingX" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="exchange-fallback bingx-fallback" hidden>B</span><span>BingX</span></button><button type="button" class="exchange-button" data-exchange="bitget"><img src="https://www.bitget.com/favicon.ico" alt="Logo de Bitget" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="exchange-fallback bitget-fallback" hidden>B</span><span>Bitget</span></button><button type="button" class="exchange-button" data-exchange="bitunix"><img src="https://www.bitunix.com/favicon.ico" alt="Logo de Bitunix" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="exchange-fallback bitunix-fallback" hidden>B</span><span>Bitunix</span></button></div>
+      <label id="emptyUploadButton" class="secondary-button upload-button disabled-upload"><input id="fileInputEmpty" type="file" accept=".xlsx,.xls,.csv" /><span>Seleccionar historial</span></label>
+      <small>Los datos se procesan localmente en este navegador.</small>
+    </section>
+
+    <section id="landingInfo" class="landing-info" aria-labelledby="landingInfoTitle">
+      <div class="landing-info-heading">
+        <p class="eyebrow">ANÁLISIS MÁS CLARO</p>
+        <h2 id="landingInfoTitle">Entiende mejor tus resultados de futuros</h2>
+        <p>TradeMetrics transforma el historial de tus operaciones en una vista completa de tu rendimiento. Puedes revisar tu PNL neto, fees, tasa de acierto, drawdown, rachas, horarios y comportamiento por activo sin tener que ordenar manualmente el Excel.</p>
+        <p>Elige el exchange que generó tu archivo y carga el historial de posiciones cerradas. La aplicación reconoce el formato de cada exchange compatible y muestra los datos en tablas y gráficos fáciles de leer.</p>
+      </div>
+      <div class="landing-features" aria-label="Características principales">
+        <div><span class="landing-feature-icon">↗</span><strong>Métricas accionables</strong><p>Detecta qué pares, horarios y direcciones están aportando mejores resultados.</p></div>
+        <div><span class="landing-feature-icon">◌</span><strong>Privacidad local</strong><p>Tu archivo se procesa directamente en este navegador y no se envía a servidores.</p></div>
+        <div><span class="landing-feature-icon">▦</span><strong>Excel y CSV</strong><p>Acepta archivos <code>.xlsx</code>, <code>.xls</code> y <code>.csv</code> descargados de los exchanges compatibles.</p></div>
+      </div>
+    </section>
+
+    <section id="landingExtras" class="landing-extras" aria-labelledby="howToTitle">
+      <div class="how-to-section">
+        <div class="landing-section-heading">
+          <p class="eyebrow">GUÍA RÁPIDA</p>
+          <h2 id="howToTitle">¿Cómo usar la herramienta?</h2>
+          <p>Prepara el historial correcto en pocos pasos y deja que TradeMetrics haga el análisis por ti.</p>
+        </div>
+        <ol class="steps-grid">
+          <li class="step-card"><span class="step-number">01</span><h3>Paso 1</h3><p>Ve a tu exchange, entra a <strong>Futuros &gt; Historial de Órdenes / Posiciones Cerradas</strong> y localiza el reporte que quieres analizar.</p></li>
+          <li class="step-card"><span class="step-number">02</span><h3>Paso 2</h3><p>Exporta el reporte en formato <code>.xlsx</code> o <code>.csv</code>, seleccionando el rango de fechas que deseas revisar.</p></li>
+          <li class="step-card"><span class="step-number">03</span><h3>Paso 3</h3><p>Selecciona el exchange en la plataforma y carga o arrastra el archivo. Tus datos se procesarán al instante en tu navegador.</p></li>
+        </ol>
+      </div>
+      <div class="faq-section" aria-labelledby="faqTitle">
+        <div class="landing-section-heading"><p class="eyebrow">AYUDA</p><h2 id="faqTitle">Preguntas Frecuentes</h2></div>
+        <div class="faq-list">
+          <details class="faq-item"><summary>¿Mis datos están seguros?</summary><p>Sí. Toda la lectura y cálculo del archivo se realiza 100% de forma local en tu navegador mediante JavaScript. Ningún trade o dato financiero se envía a servidores externos.</p></details>
+          <details class="faq-item"><summary>¿Es completamente gratuito?</summary><p>Sí, la herramienta es y seguirá siendo gratuita para análisis de historiales de futuros.</p></details>
+          <details class="faq-item"><summary>¿Qué hago si mi archivo da error?</summary><p>Asegúrate de exportar el historial de <strong>posiciones cerradas</strong> de futuros y no el de billetera Spot o depósitos. Si el problema persiste, puedes reportarlo desde el enlace de soporte en el footer.</p></details>
+          <details class="faq-item"><summary>¿Puedo subir archivos de varios exchanges a la vez?</summary><p>Por el momento debes seleccionar el exchange correspondiente y cargar el archivo individualmente para garantizar la correcta lectura del formato.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section id="dashboard" class="hidden">
+      <div class="status-row"><div id="fileName"></div><div id="tradeCount"></div></div>
+      <div class="cards" id="metricCards"></div>
+      <article class="panel equity-panel"><div class="panel-title"><h3>Curva de capital</h3><span>PNL acumulado</span></div><canvas id="equityChart"></canvas></article>
+      <div class="grid three">
+        <article class="panel"><div class="panel-title"><h3>PNL por día</h3><span>Resultado neto diario</span></div><canvas id="dailyChart"></canvas></article>
+        <article class="panel"><div class="panel-title"><h3>Dirección</h3><span>Long vs Short</span></div><canvas id="directionChart"></canvas></article>
+        <article class="panel hour-panel"><div class="panel-title"><h3>Hora de apertura</h3><span>PNL por franja horaria</span></div><canvas id="hourChart"></canvas></article>
+      </div>
+      <div class="grid three asset-row-grid">
+        <article class="panel asset-panel"><div class="panel-title"><h3>Activos</h3><span>PNL neto y cantidad de trades</span></div><div id="assetList" class="asset-list"></div></article>
+        <article class="panel results-streak-panel"><div class="results-streak-grid"><div class="streak-panel"><div class="panel-title"><h3>Análisis de rachas</h3><span>Trades consecutivos</span></div><div id="streakMetrics" class="streak-metrics"></div><div id="streakSummary" class="streak-summary"></div></div><div class="results-block"><div class="panel-title"><h3>Resultados</h3><span>Ganadoras vs perdedoras</span></div><canvas id="winLossChart"></canvas></div></div></article>
+        <div class="calendar-holder"><article class="panel calendar-panel"><div class="panel-title"><h3>Calendario de resultados</h3><div class="calendar-nav"><button id="previousMonth" type="button" aria-label="Mes anterior">‹</button><strong id="calendarMonth"></strong><button id="nextMonth" type="button" aria-label="Mes siguiente">›</button></div></div><div class="calendar-weekdays"><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span></div><div id="calendarGrid" class="calendar-grid"></div><div class="calendar-legend"><span><i class="legend-positive"></i> Positivo</span><span><i class="legend-negative"></i> Negativo</span><span><i class="legend-empty"></i> Sin trades</span></div></article></div>
+      </div>
+      <article class="panel table-panel"><div class="panel-title"><h3>Detalle de trades</h3><div class="table-tools"><span id="tableSummary"></span><label for="symbolFilter">Mostrar par</label><select id="symbolFilter"><option value="all">Todos</option></select><label for="directionFilter">Mostrar dirección</label><select id="directionFilter"><option value="all">Todos</option><option value="long">Solo Long</option><option value="short">Solo Short</option></select><label for="durationSort">Ordenar duración</label><select id="durationSort"><option value="date">Por defecto</option><option value="longest">Mayor</option><option value="shortest">Menor</option></select></div></div><div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Activo</th><th>Dirección</th><th>Entrada</th><th>Cierre</th><th>Duración</th><th>Volumen</th><th>Fee</th><th>PNL neto</th><th>Resultado</th></tr></thead><tbody id="tradeTable"></tbody></table></div></article>
+    </section>
+    <footer class="site-footer" aria-labelledby="footer-title">
+      <div class="footer-grid">
+        <section class="footer-column footer-brand-column">
+          <div class="footer-brand-lockup"><div class="footer-logo-wrap"><img class="footer-logo" src="logo sin fondo dorado.png" alt="" /></div><h2 id="footer-title" class="footer-brand">TradeMetrics</h2></div>
+          <p class="footer-copy">Analizador de trades de futuros 100% privado y gratuito. Procesamiento de datos local en tu navegador.</p>
+          <p class="footer-legal-note">Los nombres y logos de Binance, MEXC, BingX, Bitget y Bitunix pertenecen a sus respectivos propietarios y se usan solo con fines de identificación.</p>
+        </section>
+        <aside class="footer-column donation-column" aria-labelledby="donationTitle">
+          <h2 id="donationTitle" class="footer-heading">Apoya el proyecto</h2>
+          <p class="donation-copy">TradeMetrics es 100% gratuito e independiente. Si la herramienta te ayuda en tu operativa y querés apoyar el mantenimiento del proyecto, futuras actualizaciones y nuevas funciones, podés hacer una donación voluntaria.</p>
+          <p class="donation-note">Hacé clic en una dirección para copiarla.</p>
+          <div class="wallet-list">
+            <button class="wallet-copy" type="button" data-wallet="0x4e5c740F9D17be166B57138c36268B8B014F47bF" aria-label="Copiar dirección BEP20"><span>BEP20</span><code>0x4e5c740F9D17be166B57138c36268B8B014F47bF</code></button>
+            <button class="wallet-copy" type="button" data-wallet="0x4e5c740F9D17be166B57138c36268B8B014F47bF" aria-label="Copiar dirección Arbitrum"><span>Arbitrum</span><code>0x4e5c740F9D17be166B57138c36268B8B014F47bF</code></button>
+            <button class="wallet-copy" type="button" data-wallet="5gDtwpLyWP1E5WGGz36U88QBK1UFNSsxmput7Cy2NrQ6" aria-label="Copiar dirección Solana"><span>Solana</span><code>5gDtwpLyWP1E5WGGz36U88QBK1UFNSsxmput7Cy2NrQ6</code></button>
+            <button class="wallet-copy" type="button" data-wallet="TWsFcyy5V31nwUJctRxjzoSKto5en1Ke4s" aria-label="Copiar dirección Tron"><span>Tron</span><code>TWsFcyy5V31nwUJctRxjzoSKto5en1Ke4s</code></button>
+          </div>
+          <span id="walletCopyStatus" class="wallet-copy-status" role="status" aria-live="polite"></span>
+        </aside>
+        <nav class="footer-column" aria-labelledby="footer-legal-title">
+          <h2 id="footer-legal-title" class="footer-heading">Legales e información</h2>
+          <a href="#privacy" class="footer-link" data-info-modal="privacy">Política de Privacidad</a>
+          <a href="#terms" class="footer-link" data-info-modal="terms">Términos y Condiciones</a>
+          <a href="#financial-disclaimer" class="footer-link" data-info-modal="disclaimer">Disclaimer Financiero</a>
+        </nav>
+        <section class="footer-column" aria-labelledby="footer-support-title">
+          <h2 id="footer-support-title" class="footer-heading">Contacto y soporte</h2>
+          <div class="footer-contact-row"><a class="footer-link" href="mailto:freexpl123456@gmail.com?subject=TradeMetrics%20-%20Bug%20o%20feedback">Reportar un Bug / Feedback</a><span class="footer-email">freexpl123456@gmail.com</span></div>
+          <a class="footer-link footer-social-link" href="https://x.com/Frexitocrypto" target="_blank" rel="noopener noreferrer">X / Twitter <span aria-hidden="true">↗</span></a>
+          <p class="footer-support-copy">¿Encontraste un problema o tienes una idea? Escríbeme y ayúdame a seguir mejorando la herramienta.</p>
+        </section>
+      </div>
+      <div class="footer-bottom"><span>Procesamiento local en tu navegador</span><span>© 2026 TradeMetrics. Todos los derechos reservados.</span></div>
+    </footer>
+  </main>
+  <div id="infoModal" class="info-modal" hidden>
+    <div class="info-modal-backdrop" data-close-modal></div>
+    <section class="info-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle" aria-describedby="infoModalBody">
+      <button id="closeInfoModal" class="info-modal-close" type="button" aria-label="Cerrar ventana">×</button>
+      <p class="eyebrow">TRADEMETRICS</p>
+      <h2 id="infoModalTitle"></h2>
+      <p id="infoModalBody"></p>
+    </section>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
