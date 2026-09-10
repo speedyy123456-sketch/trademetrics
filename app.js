@@ -208,7 +208,7 @@ function cleanBitunix(rows) {
 }
 
 async function loadFile(file) {
-  if (!/\.(xlsx|xls|csv)$/i.test(file.name)) return alert('Selecciona un archivo válido (.xlsx, .xls o .csv).');
+  if (!/\.(xlsx|xls)$/i.test(file.name)) return alert('Selecciona un archivo Excel válido (.xlsx o .xls).');
   if (!selectedExchange) return alert('Selecciona primero el exchange del archivo.');
   if (!['mexc', 'binance', 'bingx', 'bitget', 'bitunix'].includes(selectedExchange)) return alert('Selecciona un exchange válido.');
   const workbook = XLSX.read(await file.arrayBuffer(), { type: 'array', cellDates: true });
