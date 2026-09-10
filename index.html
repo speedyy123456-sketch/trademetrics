@@ -24,7 +24,7 @@
         </div>
       </div>
       <label id="topUploadButton" class="upload-button disabled-upload">
-        <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" />
+        <input id="fileInput" type="file" accept=".xlsx,.xls" />
         <span>Seleccionar Excel</span>
       </label>
     </header>
@@ -34,7 +34,7 @@
       <h2>Selecciona tu exchange</h2>
       <p id="exchangeHelp">Primero selecciona el exchange del archivo que quieres analizar.</p>
       <div class="exchange-picker"><button type="button" class="exchange-button" data-exchange="binance"><img src="https://cdn.simpleicons.org/binance" alt="Logo de Binance" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="exchange-fallback binance-fallback" hidden>B</span><span>Binance</span></button><button type="button" class="exchange-button" data-exchange="mexc"><img src="https://mexc-rainbown-activityimages.s3.ap-northeast-1.amazonaws.com/banner/F20260907162558166GC1eEzPnH1qN0V.png" alt="Logo oficial de MEXC" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="exchange-fallback mexc-fallback" hidden>M</span><span>MEXC</span></button><button type="button" class="exchange-button" data-exchange="bingx"><img src="https://bingx.com/favicon.ico" alt="Logo de BingX" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="exchange-fallback bingx-fallback" hidden>B</span><span>BingX</span></button><button type="button" class="exchange-button" data-exchange="bitget"><img src="https://www.bitget.com/favicon.ico" alt="Logo de Bitget" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="exchange-fallback bitget-fallback" hidden>B</span><span>Bitget</span></button><button type="button" class="exchange-button" data-exchange="bitunix"><img src="https://www.bitunix.com/favicon.ico" alt="Logo de Bitunix" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="exchange-fallback bitunix-fallback" hidden>B</span><span>Bitunix</span></button></div>
-      <label id="emptyUploadButton" class="secondary-button upload-button disabled-upload"><input id="fileInputEmpty" type="file" accept=".xlsx,.xls,.csv" /><span>Seleccionar historial</span></label>
+      <label id="emptyUploadButton" class="secondary-button upload-button disabled-upload"><input id="fileInputEmpty" type="file" accept=".xlsx,.xls" /><span>Seleccionar historial</span></label>
       <small>Los datos se procesan localmente en este navegador.</small>
     </section>
 
@@ -48,7 +48,7 @@
       <div class="landing-features" aria-label="Características principales">
         <div><span class="landing-feature-icon">↗</span><strong>Métricas accionables</strong><p>Detecta qué pares, horarios y direcciones están aportando mejores resultados.</p></div>
         <div><span class="landing-feature-icon">◌</span><strong>Privacidad local</strong><p>Tu archivo se procesa directamente en este navegador y no se envía a servidores.</p></div>
-        <div><span class="landing-feature-icon">▦</span><strong>Excel y CSV</strong><p>Acepta archivos <code>.xlsx</code>, <code>.xls</code> y <code>.csv</code> descargados de los exchanges compatibles.</p></div>
+        <div><span class="landing-feature-icon">▦</span><strong>Archivos Excel</strong><p>Acepta archivos <code>.xlsx</code> y <code>.xls</code> descargados de los exchanges compatibles.</p></div>
       </div>
     </section>
 
@@ -61,7 +61,7 @@
         </div>
         <ol class="steps-grid">
           <li class="step-card"><span class="step-number">01</span><h3>Paso 1</h3><p>Ve a tu exchange, entra a <strong>Futuros &gt; Historial de Órdenes / Posiciones Cerradas</strong> y localiza el reporte que quieres analizar.</p></li>
-          <li class="step-card"><span class="step-number">02</span><h3>Paso 2</h3><p>Exporta el reporte en formato <code>.xlsx</code> o <code>.csv</code>, seleccionando el rango de fechas que deseas revisar.</p></li>
+          <li class="step-card"><span class="step-number">02</span><h3>Paso 2</h3><p>Exporta el reporte en formato <code>.xlsx</code> o <code>.xls</code> (Excel), seleccionando el rango de fechas que deseas revisar.</p></li>
           <li class="step-card"><span class="step-number">03</span><h3>Paso 3</h3><p>Selecciona el exchange en la plataforma y carga o arrastra el archivo. Tus datos se procesarán al instante en tu navegador.</p></li>
         </ol>
       </div>
