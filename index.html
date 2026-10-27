@@ -34,8 +34,14 @@
       <h2>Selecciona tu exchange</h2>
       <p id="exchangeHelp">Primero selecciona el exchange del archivo que quieres analizar.</p>
       <div class="exchange-picker"><button type="button" class="exchange-button" data-exchange="binance"><img src="https://cdn.simpleicons.org/binance" alt="Logo de Binance" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="exchange-fallback binance-fallback" hidden>B</span><span>Binance</span></button><button type="button" class="exchange-button" data-exchange="mexc"><img src="https://mexc-rainbown-activityimages.s3.ap-northeast-1.amazonaws.com/banner/F20260907162558166GC1eEzPnH1qN0V.png" alt="Logo oficial de MEXC" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="exchange-fallback mexc-fallback" hidden>M</span><span>MEXC</span></button><button type="button" class="exchange-button" data-exchange="bingx"><img src="https://bingx.com/favicon.ico" alt="Logo de BingX" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="exchange-fallback bingx-fallback" hidden>B</span><span>BingX</span></button><button type="button" class="exchange-button" data-exchange="bitget"><img src="https://www.bitget.com/favicon.ico" alt="Logo de Bitget" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="exchange-fallback bitget-fallback" hidden>B</span><span>Bitget</span></button><button type="button" class="exchange-button" data-exchange="bitunix"><img src="https://www.bitunix.com/favicon.ico" alt="Logo de Bitunix" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="exchange-fallback bitunix-fallback" hidden>B</span><span>Bitunix</span></button></div>
-      <label id="emptyUploadButton" class="secondary-button upload-button disabled-upload"><input id="fileInputEmpty" type="file" accept=".xlsx,.xls" /><span>Seleccionar historial</span></label>
-      <small>Los datos se procesan localmente en este navegador.</small>
+      <section id="mexcApiPanel" class="mexc-api-panel" hidden aria-labelledby="mexcApiTitle">
+        <div><h3 id="mexcApiTitle">Conectar API de MEXC</h3><p>Activa únicamente el permiso <strong>View Order Details</strong> (solo lectura). No habilites trading ni retiros.</p></div>
+        <div class="api-credentials"><label for="mexcApiKey">API Key</label><input id="mexcApiKey" type="password" autocomplete="off" spellcheck="false" placeholder="Pega tu API Key" /><label for="mexcSecretKey">Secret Key</label><input id="mexcSecretKey" type="password" autocomplete="off" spellcheck="false" placeholder="Pega tu Secret Key" /></div>
+        <div class="mexc-api-actions"><button id="connectMexcApi" type="button">Consultar posiciones cerradas</button><button id="disconnectMexcApi" type="button" class="api-disconnect">Borrar campos</button><span id="mexcApiStatus" role="status" aria-live="polite"></span></div>
+        <small>Las claves se envían por HTTPS a una función de Netlify y se procesan temporalmente para firmar las consultas. TradeMetrics no las guarda. No las pegues en el chat.</small>
+      </section>
+      <label id="emptyUploadButton" class="secondary-button upload-button disabled-upload"><input id="fileInputEmpty" type="file" accept=".xlsx,.xls" /><span>Seleccionar Excel de posiciones</span></label>
+      <small>Los archivos se procesan en el navegador. La conexión API de MEXC usa Netlify.</small>
     </section>
 
     <section id="landingInfo" class="landing-info" aria-labelledby="landingInfoTitle">
@@ -47,7 +53,7 @@
       </div>
       <div class="landing-features" aria-label="Características principales">
         <div><span class="landing-feature-icon">↗</span><strong>Métricas accionables</strong><p>Detecta qué pares, horarios y direcciones están aportando mejores resultados.</p></div>
-        <div><span class="landing-feature-icon">◌</span><strong>Privacidad local</strong><p>Tu archivo se procesa directamente en este navegador y no se envía a servidores.</p></div>
+        <div><span class="landing-feature-icon">◌</span><strong>Privacidad</strong><p>Los Excel se procesan en el navegador; la API de MEXC se consulta mediante una función segura de Netlify.</p></div>
         <div><span class="landing-feature-icon">▦</span><strong>Archivos Excel</strong><p>Acepta archivos <code>.xlsx</code> y <code>.xls</code> descargados de los exchanges compatibles.</p></div>
       </div>
     </section>
@@ -59,16 +65,27 @@
           <h2 id="howToTitle">¿Cómo usar la herramienta?</h2>
           <p>Prepara el historial correcto en pocos pasos y deja que TradeMetrics haga el análisis por ti.</p>
         </div>
-        <ol class="steps-grid">
-          <li class="step-card"><span class="step-number">01</span><h3>Paso 1</h3><p>Ve a tu exchange, entra a <strong>Futuros &gt; Historial de Órdenes / Posiciones Cerradas</strong> y localiza el reporte que quieres analizar.</p></li>
-          <li class="step-card"><span class="step-number">02</span><h3>Paso 2</h3><p>Exporta el reporte en formato <code>.xlsx</code> o <code>.xls</code> (Excel), seleccionando el rango de fechas que deseas revisar.</p></li>
-          <li class="step-card"><span class="step-number">03</span><h3>Paso 3</h3><p>Selecciona el exchange en la plataforma y carga o arrastra el archivo. Tus datos se procesarán al instante en tu navegador.</p></li>
-        </ol>
+        <div class="how-to-option">
+          <h3 class="how-to-option-title">Opción 1 · Cargar un Excel</h3>
+          <ol class="steps-grid">
+            <li class="step-card"><span class="step-number">01</span><h3>Paso 1</h3><p>Ve a tu exchange, entra a <strong>Futuros &gt; Historial de Órdenes / Posiciones Cerradas</strong> y localiza el reporte que quieres analizar.</p></li>
+            <li class="step-card"><span class="step-number">02</span><h3>Paso 2</h3><p>Exporta el reporte en formato <code>.xlsx</code> o <code>.xls</code> (Excel), seleccionando el rango de fechas que deseas revisar.</p></li>
+            <li class="step-card"><span class="step-number">03</span><h3>Paso 3</h3><p>Selecciona el exchange en la plataforma y pulsa <strong>Seleccionar Excel de posiciones</strong>. El archivo se procesa en tu navegador.</p></li>
+          </ol>
+        </div>
+        <div class="how-to-option api-how-to-option">
+          <h3 class="how-to-option-title">Opción 2 · Consultar MEXC por API</h3>
+          <ol class="steps-grid">
+            <li class="step-card"><span class="step-number">01</span><h3>Paso 1</h3><p>En MEXC crea una API key con el permiso <strong>View Order Details</strong> únicamente. Es un permiso de <strong>solo lectura</strong>; no actives trading ni retiros.</p></li>
+            <li class="step-card"><span class="step-number">02</span><h3>Paso 2</h3><p>Selecciona <strong>MEXC</strong>, ingresa tu API Key y Secret Key en <strong>Conectar API de MEXC</strong> y pulsa <strong>Consultar posiciones cerradas</strong>.</p></li>
+            <li class="step-card"><span class="step-number">03</span><h3>Paso 3</h3><p>TradeMetrics consulta tus posiciones cerradas y muestra el mismo dashboard. Las claves se envían por HTTPS a Netlify y se procesan temporalmente, sin guardarse.</p></li>
+          </ol>
+        </div>
       </div>
       <div class="faq-section" aria-labelledby="faqTitle">
         <div class="landing-section-heading"><p class="eyebrow">AYUDA</p><h2 id="faqTitle">Preguntas Frecuentes</h2></div>
         <div class="faq-list">
-          <details class="faq-item"><summary>¿Mis datos están seguros?</summary><p>Sí. Toda la lectura y cálculo del archivo se realiza 100% de forma local en tu navegador mediante JavaScript. Ningún trade o dato financiero se envía a servidores externos.</p></details>
+          <details class="faq-item"><summary>¿Mis datos están seguros?</summary><p>Los archivos Excel se leen en tu navegador. Si conectas MEXC, la API Key y Secret Key se envían por HTTPS a una función de Netlify, que las procesa en memoria para firmar solicitudes de lectura. TradeMetrics no las guarda. Crea una clave MEXC con permiso de lectura únicamente.</p></details>
           <details class="faq-item"><summary>¿Es completamente gratuito?</summary><p>Sí, la herramienta es y seguirá siendo gratuita para análisis de historiales de futuros.</p></details>
           <details class="faq-item"><summary>¿Qué hago si mi archivo da error?</summary><p>Asegúrate de exportar el historial de <strong>posiciones cerradas</strong> de futuros y no el de billetera Spot o depósitos. Si el problema persiste, puedes reportarlo desde el enlace de soporte en el footer.</p></details>
           <details class="faq-item"><summary>¿Puedo subir archivos de varios exchanges a la vez?</summary><p>Por el momento debes seleccionar el exchange correspondiente y cargar el archivo individualmente para garantizar la correcta lectura del formato.</p></details>
@@ -96,7 +113,7 @@
       <div class="footer-grid">
         <section class="footer-column footer-brand-column">
           <div class="footer-brand-lockup"><div class="footer-logo-wrap"><img class="footer-logo" src="logo sin fondo dorado.png" alt="" /></div><h2 id="footer-title" class="footer-brand">TradeMetrics</h2></div>
-          <p class="footer-copy">Analizador de trades de futuros 100% privado y gratuito. Procesamiento de datos local en tu navegador.</p>
+          <p class="footer-copy">Analizador de trades de futuros gratuito. Los Excel se procesan en tu navegador y la conexión API de MEXC usa funciones de Netlify.</p>
           <p class="footer-legal-note">Los nombres y logos de Binance, MEXC, BingX, Bitget y Bitunix pertenecen a sus respectivos propietarios y se usan solo con fines de identificación.</p>
         </section>
         <aside class="footer-column donation-column" aria-labelledby="donationTitle">
@@ -124,7 +141,7 @@
           <p class="footer-support-copy">¿Encontraste un problema o tienes una idea? Escríbeme y ayúdame a seguir mejorando la herramienta.</p>
         </section>
       </div>
-      <div class="footer-bottom"><span>Procesamiento local en tu navegador</span><span>© 2026 TradeMetrics. Todos los derechos reservados.</span></div>
+      <div class="footer-bottom"><span>Procesamiento local de Excel · API de MEXC mediante Netlify</span><span>© 2026 TradeMetrics. Todos los derechos reservados.</span></div>
     </footer>
   </main>
   <div id="infoModal" class="info-modal" hidden>

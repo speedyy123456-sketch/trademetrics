@@ -1,0 +1,5 @@
+[build]
+  command = "node build.mjs"
+  publish = "dist"
+  functions = "netlify/functions"
+

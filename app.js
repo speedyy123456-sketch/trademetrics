@@ -3,6 +3,7 @@ let charts = {};
 let currentTrades = [];
 let calendarMonth = new Date();
 let selectedExchange = '';
+let mexcAbortController = null;
 
 ['fileInput', 'fileInputEmpty'].forEach((id) => {
   $('#' + id).addEventListener('change', (event) => {
@@ -10,6 +11,8 @@ let selectedExchange = '';
   });
 });
 document.querySelectorAll('.exchange-button').forEach((button) => button.addEventListener('click', () => selectExchange(button.dataset.exchange, button)));
+$('#connectMexcApi').addEventListener('click', connectMexcApi);
+$('#disconnectMexcApi').addEventListener('click', clearMexcCredentials);
 $('#directionFilter').addEventListener('change', () => renderTradeTable());
 $('#symbolFilter').addEventListener('change', () => renderTradeTable());
 $('#durationSort').addEventListener('change', () => renderTradeTable());
@@ -22,7 +25,7 @@ const infoModalBody = $('#infoModalBody');
 const closeInfoModalButton = $('#closeInfoModal');
 let lastModalTrigger = null;
 const infoModalContent = {
-  privacy: { title: 'Política de Privacidad', body: 'TradeMetrics procesa los archivos seleccionados directamente en tu navegador. Los datos de tus trades no se suben ni se almacenan en un servidor de esta aplicación.' },
+  privacy: { title: 'Política de Privacidad', body: 'Los archivos seleccionados se procesan en tu navegador. Si conectas MEXC, las claves se envían por HTTPS a una Netlify Function para firmar solicitudes de solo lectura. TradeMetrics no las persiste; la función las procesa temporalmente durante cada consulta.' },
   terms: { title: 'Términos y Condiciones', body: 'Esta herramienta se ofrece de forma gratuita y local para fines informativos. Al utilizarla, aceptas revisar los resultados y la precisión de tus archivos antes de tomar cualquier decisión.' },
   disclaimer: { title: 'Disclaimer Financiero', body: 'TradeMetrics no ofrece asesoramiento financiero, de inversión, legal ni fiscal. Las métricas y gráficos son únicamente informativos y no constituyen una recomendación para comprar, vender o mantener ningún activo. Opera solo con capital y riesgos que comprendas.' },
 };
@@ -89,7 +92,83 @@ function selectExchange(exchange, button) {
   $('#topUploadButton').classList.remove('disabled-upload');
   $('#emptyUploadButton').classList.remove('disabled-upload');
   const exchangeName = button.querySelector('span:last-child')?.textContent.trim() || exchange;
-  $('#exchangeHelp').textContent = `${exchangeName} seleccionado. Ahora carga tu historial de posiciones cerradas.`;
+  $('#exchangeHelp').textContent = exchange === 'mexc'
+    ? 'MEXC seleccionado. Carga un Excel de posiciones cerradas o consulta el historial mediante Netlify.'
+    : `${exchangeName} seleccionado. Ahora carga tu historial de posiciones cerradas.`;
+  $('#mexcApiPanel').hidden = exchange !== 'mexc';
+}
+
+function clearMexcCredentials() {
+  mexcAbortController?.abort();
+  mexcAbortController = null;
+  $('#mexcApiKey').value = '';
+  $('#mexcSecretKey').value = '';
+  $('#mexcApiStatus').textContent = 'Campos borrados.';
+}
+
+async function connectMexcApi() {
+  let apiKey = $('#mexcApiKey').value.trim();
+  let secretKey = $('#mexcSecretKey').value.trim();
+  const status = $('#mexcApiStatus');
+  const button = $('#connectMexcApi');
+  if (!apiKey || !secretKey) {
+    status.textContent = 'Completa ambos campos para continuar.';
+    return;
+  }
+  button.disabled = true;
+  button.textContent = 'Consultando MEXC…';
+  mexcAbortController = new AbortController();
+  status.textContent = 'Conectando y descargando posiciones cerradas. Puede tardar si tienes mucho historial.';
+  try {
+    const endpoint = '/api/mexc/trades';
+    const trades = [];
+    let pageNum = 1;
+    let hasMore = true;
+    while (hasMore) {
+      status.textContent = pageNum === 1
+        ? 'Consultando MEXC…'
+        : `Descargando historial de MEXC (página ${pageNum}).`;
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        cache: 'no-store',
+        signal: mexcAbortController.signal,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey, secretKey, pageNum }),
+      });
+      let result;
+      try { result = await response.json(); }
+      catch {
+        if (response.status === 429) throw new Error('Se alcanzó el límite temporal de consultas. Espera un minuto e inténtalo otra vez.');
+        throw new Error(`El servidor devolvió una respuesta no válida (HTTP ${response.status}).`);
+      }
+      if (!response.ok) throw new Error(result.error || 'No se pudo consultar MEXC.');
+      const batch = (result.trades || []).map((trade) => ({ ...trade, date: toDate(trade.date), close: toDate(trade.close) }));
+      trades.push(...batch);
+
+      // The local connector returns the complete result. Netlify returns one MEXC page per invocation.
+      hasMore = result.nextPage !== undefined && result.hasMore === true;
+      pageNum = Number(result.nextPage) || pageNum + 1;
+      if (hasMore && pageNum > 5000) throw new Error('MEXC superó el límite de 5.000 páginas permitido.');
+      if (hasMore) await new Promise((resolve) => setTimeout(resolve, 120));
+    }
+    if (!trades.length) throw new Error('MEXC no devolvió posiciones cerradas para analizar.');
+    status.textContent = `Se cargaron ${trades.length} posiciones cerradas.`;
+    render(trades, 'MEXC API');
+  } catch (error) {
+    status.textContent = error.name === 'AbortError'
+      ? 'Consulta cancelada. Campos borrados.'
+      : (error instanceof TypeError
+      ? 'No se pudo comunicar con la función de MEXC. Si pruebas localmente, verifica que Netlify Dev siga activo; en producción, revisa el despliegue de Netlify.'
+      : (error.message || 'No se pudo conectar con MEXC.'));
+  } finally {
+    mexcAbortController = null;
+    apiKey = '';
+    secretKey = '';
+    $('#mexcApiKey').value = '';
+    $('#mexcSecretKey').value = '';
+    button.disabled = false;
+    button.textContent = 'Consultar posiciones cerradas';
+  }
 }
 
 function num(value) {
@@ -322,7 +401,7 @@ function render(trades, fileName) {
   renderCalendar();
   renderStreaks();
   setTimeout(renderTradeTable, 0);
-  $('#tradeTable').innerHTML = [...trades].sort((a, b) => b.date - a.date).map((trade) => `<tr><td>${trade.date.toLocaleString('es-AR')}</td><td>${assetCell(trade.symbol)}</td><td>${trade.direction}</td><td>${price(trade.entry)}</td><td>${price(trade.exit)}</td><td>${duration(trade.date, trade.close)}</td><td>${trade.volume.toLocaleString('es-AR', { maximumFractionDigits: 4 })}</td><td class="negative">${money(-trade.fee)}</td><td class="${trade.pnl >= 0 ? 'positive' : 'negative'}"><b>${money(trade.pnl)}</b></td><td><span class="badge ${trade.pnl < 0 ? 'loss' : ''}">${trade.pnl >= 0 ? 'Ganadora' : 'Perdedora'}</span></td></tr>`).join('');
+  $('#tradeTable').innerHTML = [...trades].sort((a, b) => b.date - a.date).map((trade) => `<tr><td>${trade.date.toLocaleString('es-AR')}</td><td>${assetCell(trade.symbol)}</td><td>${trade.direction}</td><td>${price(trade.entry)}</td><td>${price(trade.exit)}</td><td>${duration(trade.date, trade.close)}</td><td>${trade.volume.toLocaleString('es-AR', { maximumFractionDigits: 4 })}</td><td class="${trade.fee >= 0 ? 'negative' : 'positive'}">${money(-trade.fee)}</td><td class="${trade.pnl >= 0 ? 'positive' : 'negative'}"><b>${money(trade.pnl)}</b></td><td><span class="badge ${trade.pnl < 0 ? 'loss' : ''}">${trade.pnl >= 0 ? 'Ganadora' : 'Perdedora'}</span></td></tr>`).join('');
 }
 
 function renderTradeTable() {
@@ -336,7 +415,7 @@ function renderTradeTable() {
     return b.date - a.date;
   });
   $('#tableSummary').textContent = `${visibleTrades.length} de ${currentTrades.length} trades`;
-  $('#tradeTable').innerHTML = sortedTrades.map((trade) => `<tr><td>${trade.date.toLocaleString('es-AR')}</td><td>${assetCell(trade.symbol)}</td><td>${directionCell(trade.direction)}</td><td>${price(trade.entry)}</td><td>${price(trade.exit)}</td><td>${duration(trade.date, trade.close)}</td><td>${trade.volume.toLocaleString('es-AR', { maximumFractionDigits: 4 })}</td><td class="negative">${money(-trade.fee)}</td><td class="${trade.pnl >= 0 ? 'positive' : 'negative'}"><b>${money(trade.pnl)}</b></td><td><span class="badge ${trade.pnl < 0 ? 'loss' : ''}">${trade.pnl >= 0 ? 'Ganadora' : 'Perdedora'}</span></td></tr>`).join('');
+  $('#tradeTable').innerHTML = sortedTrades.map((trade) => `<tr><td>${trade.date.toLocaleString('es-AR')}</td><td>${assetCell(trade.symbol)}</td><td>${directionCell(trade.direction)}</td><td>${price(trade.entry)}</td><td>${price(trade.exit)}</td><td>${duration(trade.date, trade.close)}</td><td>${trade.volume.toLocaleString('es-AR', { maximumFractionDigits: 4 })}</td><td class="${trade.fee >= 0 ? 'negative' : 'positive'}">${money(-trade.fee)}</td><td class="${trade.pnl >= 0 ? 'positive' : 'negative'}"><b>${money(trade.pnl)}</b></td><td><span class="badge ${trade.pnl < 0 ? 'loss' : ''}">${trade.pnl >= 0 ? 'Ganadora' : 'Perdedora'}</span></td></tr>`).join('');
 }
 
 function populateSymbolFilter() {
